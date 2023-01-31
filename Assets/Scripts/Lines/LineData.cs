@@ -16,10 +16,6 @@ public class LineData : GenericSingleton<LineData>
 
     private readonly HashSet<AssociativeLineData> _lineData = new();
 
-    private void Awake()
-    {
-    }
-
     private void Update()
     {
         AssociativeLineData[] arr = _lineData.ToArray();
@@ -190,8 +186,13 @@ public class LineData : GenericSingleton<LineData>
 
     private LineRenderer CreateLineRenderer()
     {
-        var line = new GameObject("Line");
-        line.transform.parent = lineRenderersParent;
+        var line = new GameObject("Line")
+        {
+            transform =
+            {
+                parent = lineRenderersParent
+            }
+        };
         LineRenderer lr = line.AddComponent<LineRenderer>();
         lr.positionCount = 2;
         lr.useWorldSpace = true;
