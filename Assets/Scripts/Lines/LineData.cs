@@ -150,7 +150,7 @@ public class LineData : GenericSingleton<LineData>
 
         var (a, b) = associativeLineData.LineInfo.LineBounds.Value;
         bool allowed = IsOnSegment(a, b, (Vector2) intersection);
-        print($"{intersection} is on segment {a} -> {b}: {allowed}");
+        // print($"{intersection} is on segment {a} -> {b}: {allowed}");
 
         return (allowed, (Vector2) intersection);
     }
@@ -161,7 +161,7 @@ public class LineData : GenericSingleton<LineData>
 
         float crossProduct = (point.y - a.y) * (b.x - a.x) - (point.x - a.x) * (b.y - a.y);
         float dotProduct = (point.x - a.x) * (b.x - a.x) + (point.y - a.y) * (b.y - a.y);
-        double squaredLength = Math.Pow(b.x - a.x, 2) * Math.Pow(b.y - a.y, 2);
+        double squaredLength = Math.Pow(b.x - a.x, 2) + Math.Pow(b.y - a.y, 2);
 
         if (Math.Abs(crossProduct) > Math.E)
             return false;
@@ -198,7 +198,6 @@ public class LineData : GenericSingleton<LineData>
         lr.startWidth = 0.1f;
         lr.endWidth = 0.1f;
         lr.material = lineMaterial;
-        print(lr);
         return lr;
     }
 }

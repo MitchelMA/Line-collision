@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Utils;
 
-public class FormController : GenericSingleton<FormController>
+public class FormController : MonoBehaviour 
 {
     [SerializeField] private Transform pointA;
     [SerializeField] private Transform pointB;

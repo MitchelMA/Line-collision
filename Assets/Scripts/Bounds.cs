@@ -8,12 +8,10 @@ public class Bounds : GenericSingleton<Bounds>
     [SerializeField] private float height = 5f;
     [SerializeField] private Vector2 centre = Vector2.zero;
     
-    [Header("LineRenders for sides")] [SerializeField]
-    private LineRenderer top;
-
-    [SerializeField] private LineRenderer right;
-    [SerializeField] private LineRenderer bottom;
-    [SerializeField] private LineRenderer left;
+    private AssociativeLineData _topLine;
+    private AssociativeLineData _rightLine;
+    private AssociativeLineData _bottomLine;
+    private AssociativeLineData _leftLine;
 
     public Vector4 OuterBounds =>
         new Vector4(
@@ -51,23 +49,27 @@ public class Bounds : GenericSingleton<Bounds>
     }
 #endif // UNITY_EDITOR
 
-    private void FixedUpdate()
+    private void Awake()
     {
-       DrawOutsides(); 
+        LineData lineData = LineData.Instance;
+        _topLine = lineData.Add(new Vector2(Left, Top), new Vector2(Right, Top), true);
+        _rightLine = lineData.Add(new Vector2(Right, Top), new Vector2(Right, Bottom), true);
+        _bottomLine = lineData.Add(new Vector2(Left, Bottom), new Vector2(Right, Bottom), true);
+        _leftLine = lineData.Add(new Vector2(Left, Top), new Vector2(Left, Bottom), true);
     }
 
-    private void DrawOutsides()
+    private void FixedUpdate()
     {
-        top.SetPosition(0, new Vector3(Left, Top));
-        top.SetPosition(1, new Vector3(Right, Top));
+       // DrawOutsides(); 
+       SetBoundLines();
+    }
 
-        right.SetPosition(0, new Vector3(Right, Top));
-        right.SetPosition(1, new Vector3(Right, Bottom));
-
-        bottom.SetPosition(0, new Vector3(Left, Bottom));
-        bottom.SetPosition(1, new Vector3(Right, Bottom));
-
-        left.SetPosition(0, new Vector3(Left, Top));
-        left.SetPosition(1, new Vector3(Left, Bottom));
+    private void SetBoundLines()
+    {
+        _topLine.LineInfo.LineBounds = (new Vector2(Left, Top), new Vector2(Right, Top));
+        _rightLine.LineInfo.LineBounds = (new Vector2(Right, Top), new Vector2(Right, Bottom));
+        _bottomLine.LineInfo.LineBounds = (new Vector2(Left, Bottom), new Vector2(Right, Bottom));
+        _leftLine.LineInfo.LineBounds = (new Vector2(Left, Top), new Vector2(Left, Bottom));
+        
     }
 }

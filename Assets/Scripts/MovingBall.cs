@@ -49,18 +49,10 @@ public class MovingBall : MonoBehaviour
     {
         Vector3 nextPos = transform.position + _dir * (speed * Time.deltaTime);
 
-        if (nextPos.x + transform.localScale.x / 2 > _bounds.Right ||
-            nextPos.x - transform.localScale.x / 2 < _bounds.Left)
-            _dir.x *= -1;
-
-        if (nextPos.y + transform.localScale.y / 2 > _bounds.Top ||
-            nextPos.y - transform.localScale.y / 2 < _bounds.Bottom)
-            _dir.y *= -1;
-
-        _closestLineInfo = LineData.Instance.GetClosest(transform.position);
+        _closestLineInfo = LineData.Instance.GetClosest(nextPos);
 
         if (_closestLineInfo is not null &&
-            Vector3.Distance(transform.position, _closestLineInfo.Value.point) <= transform.localScale.x / 2)
+            Vector3.Distance(nextPos, _closestLineInfo.Value.point) <= transform.localScale.x / 2)
             HandleLineCollision();
 
         transform.Translate(_dir * (speed * Time.deltaTime));
@@ -103,7 +95,6 @@ public class MovingBall : MonoBehaviour
         if (_closestLineInfo is null) return;
 
         var normal = _closestLineInfo.Value.associativelineData.Normal;
-        print(normal);
         var along = _closestLineInfo.Value.associativelineData.Along;
 
         Vector3 normAngles = new Vector3(0, 0, Mathf.Atan2(normal.y, normal.x) * Mathf.Rad2Deg);
