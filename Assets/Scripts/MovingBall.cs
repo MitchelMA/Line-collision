@@ -40,12 +40,6 @@ public class MovingBall : MonoBehaviour
         Movement();
         _tracker.CalcMovement();
 
-        // set the values of the arrow
-        Vector3 dir = _tracker.UDir;
-        _rotation = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
-        arrow.transform.eulerAngles = _rotation;
-        arrow.BaseLength = _tracker.Speed / 3;
-
         DrawIntersection();
         DrawPerpendicular();
         DrawVectors();
@@ -81,8 +75,8 @@ public class MovingBall : MonoBehaviour
         Vector2 along = _closestLineInfo.Value.associativelineData.Along;
 
 
-        Vector2 refrNorm = Vector2.Dot(_dir, normal) * normal;
-        Vector2 refrAlong = Vector2.Dot(_dir, along) * along;
+        Vector2 refrNorm = Vector3.Dot(_dir, normal) * normal;
+        Vector2 refrAlong = Vector3.Dot(_dir, along) * along;
 
         _dir = (-normal + refrAlong).normalized;
     }
@@ -101,6 +95,11 @@ public class MovingBall : MonoBehaviour
 
     private void DrawVectors()
     {
+        Vector3 dir = _tracker.UDir;
+        _rotation = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
+        arrow.transform.eulerAngles = _rotation;
+        arrow.BaseLength = _tracker.Speed / 3;
+
         if (_closestLineInfo is null) return;
 
         var normal = _closestLineInfo.Value.associativelineData.Normal;
@@ -118,9 +117,9 @@ public class MovingBall : MonoBehaviour
     {
         if (_closestLineInfo is null)
             return;
-        
+
         PqrForm perp = _closestLineInfo.Value.associativelineData.LineInfo.Formula.Perpendicular(transform.position);
-        
+
         if (perp.Q == 0)
         {
             float x = perp.GetX(0);

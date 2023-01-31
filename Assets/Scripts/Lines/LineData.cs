@@ -5,30 +5,83 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using Unity.Collections.LowLevel.Unsafe;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
 public class LineData : GenericSingleton<LineData>
 {
+    [SerializeField] private Transform lineRenderersParent;
+    [SerializeField] private Material lineMaterial;
+
     private readonly HashSet<AssociativeLineData> _lineData = new();
 
     private void Awake()
     {
     }
 
-    public AssociativeLineData Add(PqrForm formula)
+    private void Update()
+    {
+        AssociativeLineData[] arr = _lineData.ToArray();
+        int l = arr.Length;
+
+        for (int i = 0; i < l; i++)
+        {
+            AssociativeLineData cur = arr[i];
+            if (cur.LineRenderer is null)
+                continue;
+
+            if (cur.LineInfo.IsSegment)
+            {
+                var (a, b) = cur.LineInfo.LineBounds.Value;
+                DrawSegment(a, b, cur.LineRenderer);
+            }
+            else
+            {
+                DrawLine(cur.LineInfo.Formula, cur.LineRenderer);
+            }
+        }
+    }
+
+    private static void DrawLine(PqrForm form, LineRenderer lr)
+    {
+        if (form.Q == 0)
+        {
+            float x = form.GetX(0);
+            lr.SetPosition(0, new Vector2(x, -20));
+            lr.SetPosition(1, new Vector2(x, 20));
+            return;
+        }
+
+        lr.SetPosition(0, new Vector2(-10, form.GetY(-10)));
+        lr.SetPosition(1, new Vector2(10, form.GetY(10)));
+    }
+
+    private static void DrawSegment(Vector2 a, Vector2 b, LineRenderer lr)
+    {
+        lr.SetPosition(0, a);
+        lr.SetPosition(1, b);
+    }
+
+    public AssociativeLineData Add(PqrForm formula, bool lineRenderer = false)
     {
         LineInfo lineInfo = LineInfo.AsLine(formula);
-        AssociativeLineData associativeData = new AssociativeLineData(lineInfo);
+        AssociativeLineData associativeData = lineRenderer
+            ? new AssociativeLineData(lineInfo, CreateLineRenderer())
+            : new AssociativeLineData(lineInfo);
+
         _lineData.Add(associativeData);
-        
+
         return associativeData;
     }
 
-    public AssociativeLineData Add(Vector2 a, Vector2 b)
+    public AssociativeLineData Add(Vector2 a, Vector2 b, bool lineRenderer = false)
     {
         LineInfo lineInfo = LineInfo.AsLineSegment(a, b);
-        AssociativeLineData associativeData = new AssociativeLineData(lineInfo);
+        AssociativeLineData associativeData = lineRenderer
+            ? new AssociativeLineData(lineInfo, CreateLineRenderer())
+            : new AssociativeLineData(lineInfo);
+
         _lineData.Add(associativeData);
 
         return associativeData;
@@ -133,5 +186,19 @@ public class LineData : GenericSingleton<LineData>
                 "This Exception shouldn't be possible since it's a intersection between perpendicular lines");
 
         return (Vector2) intersection;
+    }
+
+    private LineRenderer CreateLineRenderer()
+    {
+        var line = new GameObject("Line");
+        line.transform.parent = lineRenderersParent;
+        LineRenderer lr = line.AddComponent<LineRenderer>();
+        lr.positionCount = 2;
+        lr.useWorldSpace = true;
+        lr.startWidth = 0.1f;
+        lr.endWidth = 0.1f;
+        lr.material = lineMaterial;
+        print(lr);
+        return lr;
     }
 }
