@@ -9,7 +9,7 @@ namespace Utils
     /// <summary>
     /// Structure for the linear formula `px + qy = r`
     /// </summary>
-    public struct PqrForm : IEquatable<PqrForm>
+    public class PqrForm : IEquatable<PqrForm>
     {
         /// <summary>The p constant in the linear formula `px + qy = r`</summary>
         public float P;
@@ -102,6 +102,10 @@ namespace Utils
         /// </summary>
         public float Angle => Mathf.Atan2(Slope, 1);
 
+        public PqrForm()
+        {
+        }
+        
         /// <summary>
         /// Constructor to create a line from the components p, q and r respectively 
         /// </summary>
@@ -120,7 +124,7 @@ namespace Utils
         /// </summary>
         /// <param name="point1">Point a</param>
         /// <param name="point2">Point b</param>
-        public PqrForm(Vector2 point1, Vector2 point2) : this()
+        public PqrForm(Vector2 point1, Vector2 point2)
         {
             WithPoints(point1, point2);
         }
@@ -130,7 +134,7 @@ namespace Utils
         /// </summary>
         /// <param name="a">The a variable in the `y = ax + b` formula</param>
         /// <param name="b">The b variable in the `y = ax + b` formula</param>
-        public PqrForm(float a, float b) : this()
+        public PqrForm(float a, float b)
         {
             WithAb(a, b);
         }
@@ -140,7 +144,7 @@ namespace Utils
         /// </summary>
         /// <param name="slope">The slope of the formula</param>
         /// <param name="point">The point that should be on the formula</param>
-        public PqrForm(float slope, Vector2 point) : this()
+        public PqrForm(float slope, Vector2 point)
         {
             WithSlopePoint(slope, point);
         }
@@ -222,10 +226,10 @@ namespace Utils
         public PqrForm Perpendicular() =>
             new PqrForm(Q, -P, R);
 
-        public PqrForm Perpendicular(Vector3 through)
+        public PqrForm Perpendicular(Vector2 through)
         {
-            PqrForm form = Perpendicular();
-            form.WithSlopePoint(Slope, through);
+            PqrForm form = new PqrForm();
+            form.PerpendicularTo(this, through);
             
             return form;
         }

@@ -1,56 +1,65 @@
 ﻿using UnityEngine;
 using Utils;
 
-public struct AssociativeLineData
+public class AssociativeLineData
 {
-    public LinePart LinePart { get; }
-    public Vector2 Normal { get; private set; }
-    public Vector2 Along { get; private set; }
+    private LineInfo _lineInfo;
+
+    public LineInfo LineInfo
+    {
+        set
+        {
+            _lineInfo = value;
+            Update();
+        }
+        get
+        {
+            Update();
+            return _lineInfo;
+        }
+    }
+
+    public Vector2 Normal => Vector2.Perpendicular(Along);
+
+    public Vector2 Along
+    {
+        get
+        {
+            if (LineInfo.IsSegment)
+            {
+                var (a, b) = LineInfo.LineBounds.Value;
+                return (b - a).normalized;
+            }
+
+            if (float.IsInfinity(LineInfo.Formula.Slope))
+                return Vector2.up;
+
+            Vector2 c = new Vector2(-1, _lineInfo.Formula.GetY(-1));
+            Vector2 d = new Vector2(1, _lineInfo.Formula.GetY(1));
+            return (d - c).normalized;
+        }
+    }
+
+    /// <summary>
+    /// Can be null!
+    /// </summary>
     public LineRenderer LineRenderer { get; private set; }
 
-    public AssociativeLineData(LinePart linePart) : this()
+    public AssociativeLineData(LineInfo lineInfo)
     {
-        LinePart = linePart;
-        Update();
+        LineInfo = lineInfo;
     }
 
-    public AssociativeLineData(LinePart linePart, LineRenderer lineRenderer) : this()
+    public AssociativeLineData(LineInfo lineInfo, LineRenderer lineRenderer)
     {
-        LinePart = linePart;
+        LineInfo = lineInfo;
         LineRenderer = lineRenderer;
-        Update();
     }
 
-    public void Update()
+    private void Update()
     {
-        if (LinePart.IsLinePart)
-        {
-            UpdateLineAsPart((Vector2)LinePart.LineBounds?.a, (Vector2)LinePart.LineBounds?.b);
-        }
-        else
-        {
-            UpdateLineAsInfinite(LinePart.Formula);
-        }
-        
-    }
+        if (!_lineInfo.IsSegment) return;
 
-    private void UpdateLineAsPart(Vector2 a, Vector2 b)
-    {
-        Along = (b - a).normalized;
-        Normal = Vector3Extensions.RotatedBy(Along, 90 * Mathf.Deg2Rad, 'z');
-    }
-
-    private void UpdateLineAsInfinite(PqrForm form)
-    {
-        if (float.IsInfinity(form.Slope))
-        {
-            Normal = Vector2.right;
-            Along = Vector2.up;
-            return;
-        }
-
-        Vector2 a = new Vector2(-1, form.GetY(-1));
-        Vector2 b = new Vector2(1, form.GetY(1));
-        UpdateLineAsPart(a, b);
+        _lineInfo.Formula.WithPoints((Vector2) _lineInfo.LineBounds?.a, (Vector2) _lineInfo.LineBounds?.b);
     }
 }

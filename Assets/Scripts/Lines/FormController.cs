@@ -13,6 +13,7 @@ public class FormController : GenericSingleton<FormController>
 
     private PqrForm _pointsFormula;
     private PqrForm _perpendicularForm;
+    private AssociativeLineData _associativeLineData;
 
     public PqrForm PointsFormula => _pointsFormula;
     public PqrForm Perpendicular => _perpendicularForm;
@@ -22,7 +23,8 @@ public class FormController : GenericSingleton<FormController>
     private void Start()
     {
         _pointsFormula = new PqrForm(pointA.position, pointB.position);
-        _perpendicularForm.PerpendicularTo(_pointsFormula, movingPoint.position);
+        _associativeLineData = LineData.Instance.Add(_pointsFormula);
+        _perpendicularForm = _pointsFormula.Perpendicular(movingPoint.position);
     }
 
     // Update is called once per frame
