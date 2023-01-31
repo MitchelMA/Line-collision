@@ -75,10 +75,10 @@ public class MovingBall : MonoBehaviour
         Vector2 along = _closestLineInfo.Value.associativelineData.Along;
 
 
-        Vector2 refrNorm = Vector3.Dot(_dir, normal) * normal;
-        Vector2 refrAlong = Vector3.Dot(_dir, along) * along;
+        Vector2 resNorm = Vector3.Dot(_dir, normal) * normal;
+        Vector2 resAlong = Vector3.Dot(_dir, along) * along;
 
-        _dir = (-normal + refrAlong).normalized;
+        _dir = (-resNorm + resAlong).normalized;
     }
 
     private void DrawIntersection()
