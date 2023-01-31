@@ -222,6 +222,14 @@ namespace Utils
         public PqrForm Perpendicular() =>
             new PqrForm(Q, -P, R);
 
+        public PqrForm Perpendicular(Vector3 through)
+        {
+            PqrForm form = Perpendicular();
+            form.WithSlopePoint(Slope, through);
+            
+            return form;
+        }
+        
         /// <summary>
         /// Checks if two formula's intersect with each other and what kind of  
         /// </summary>
@@ -379,7 +387,7 @@ namespace Utils
         /// </summary>
         /// <param name="other"></param>
         /// <param name="throughPoint"></param>
-        public void PerpendicularToThrough(PqrForm other, Vector2 throughPoint)
+        public void PerpendicularTo(PqrForm other, Vector2 throughPoint)
         {
             PerpendicularTo(other);
             WithSlopePoint(Slope, throughPoint);

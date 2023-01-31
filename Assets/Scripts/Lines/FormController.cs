@@ -22,14 +22,14 @@ public class FormController : GenericSingleton<FormController>
     private void Start()
     {
         _pointsFormula = new PqrForm(pointA.position, pointB.position);
-        _perpendicularForm.PerpendicularToThrough(_pointsFormula, movingPoint.position);
+        _perpendicularForm.PerpendicularTo(_pointsFormula, movingPoint.position);
     }
 
     // Update is called once per frame
     private void Update()
     {
         _pointsFormula.WithPoints(pointA.position, pointB.position);
-        _perpendicularForm.PerpendicularToThrough(_pointsFormula, movingPoint.position);
+        _perpendicularForm.PerpendicularTo(_pointsFormula, movingPoint.position);
         
         DrawLine(_pointsFormula, pointsLr);
         DrawLine(_perpendicularForm, perpLr);
