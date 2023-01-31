@@ -5,38 +5,27 @@ using Utils;
 public class FormController : GenericSingleton<FormController>
 {
     [SerializeField] private LineRenderer pointsLr;
-    [SerializeField] private LineRenderer perpLr;
     [SerializeField] private Transform pointA;
     [SerializeField] private Transform pointB;
-    [SerializeField] private Transform movingPoint;
-    [SerializeField] private GameObject intersectPoint;
 
     private PqrForm _pointsFormula;
-    private PqrForm _perpendicularForm;
     private AssociativeLineData _associativeLineData;
 
     public PqrForm PointsFormula => _pointsFormula;
-    public PqrForm Perpendicular => _perpendicularForm;
-    public Vector2 Intersect => intersectPoint.transform.position;
 
     // Start is called before the first frame update
     private void Start()
     {
         _pointsFormula = new PqrForm(pointA.position, pointB.position);
         _associativeLineData = LineData.Instance.Add(_pointsFormula);
-        _perpendicularForm = _pointsFormula.Perpendicular(movingPoint.position);
     }
 
     // Update is called once per frame
     private void Update()
     {
         _pointsFormula.WithPoints(pointA.position, pointB.position);
-        _perpendicularForm.PerpendicularTo(_pointsFormula, movingPoint.position);
         
         DrawLine(_pointsFormula, pointsLr);
-        DrawLine(_perpendicularForm, perpLr);
-        
-        DrawIntersect(_pointsFormula, _perpendicularForm, intersectPoint);
     }
 
     private static void DrawLine(PqrForm form, LineRenderer lr)

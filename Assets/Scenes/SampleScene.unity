@@ -430,11 +430,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pointsLr: {fileID: 119660743}
-  perpLr: {fileID: 1361899880}
   pointA: {fileID: 991999497}
   pointB: {fileID: 2047323347}
-  movingPoint: {fileID: 849032889}
-  intersectPoint: {fileID: 2016973898}
 --- !u!1 &378629497
 GameObject:
   m_ObjectHideFlags: 0
@@ -714,6 +711,8 @@ MonoBehaviour:
   speed: 3
   normalArrow: {fileID: 1011247333}
   AlongPerpArrow: {fileID: 1666339267}
+  intersectionPoint: {fileID: 2016973898}
+  perpendicular: {fileID: 1361899880}
 --- !u!114 &849032891
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,11 +15,12 @@ public class MovingBall : MonoBehaviour
     [SerializeField] private float speed = 1f;
     [SerializeField] private GameObject normalArrow;
     [SerializeField] private GameObject AlongPerpArrow;
+    [SerializeField] private GameObject intersectionPoint;
+    [SerializeField] private LineRenderer perpendicular;
 
-    private Vector2 _normal;
-    private Vector2 _alongPerp;
     private Vector3 _dir;
     private Bounds _bounds;
+    private (AssociativeLineData associativelineData, Vector2 point)? _closestLineInfo;
 
     // Start is called before the first frame update
     private void Start()
@@ -34,9 +35,7 @@ public class MovingBall : MonoBehaviour
     private void Update()
     {
         // calculate the normal
-        _normal = (transform.position - (Vector3)FormController.Instance.Intersect).normalized;
-        _alongPerp = new Vector3(_normal.x, _normal.y, 0).RotatedBy(90 * Mathf.Deg2Rad, 'z');
-        
+
         _tracker.SetLastPos();
         Movement();
         _tracker.CalcMovement();
@@ -46,12 +45,10 @@ public class MovingBall : MonoBehaviour
         _rotation = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
         arrow.transform.eulerAngles = _rotation;
         arrow.BaseLength = _tracker.Speed / 3;
-        
-        Vector3 normRot = new Vector3(0, 0, Mathf.Atan2(_normal.y, _normal.x) * Mathf.Rad2Deg);
-        normalArrow.transform.eulerAngles = normRot;
 
-        Vector3 alongRot = new Vector3(0, 0, Mathf.Atan2(_alongPerp.y, _alongPerp.x) * Mathf.Rad2Deg);
-        AlongPerpArrow.transform.eulerAngles = alongRot;
+        DrawIntersection();
+        DrawPerpendicular();
+        DrawVectors();
     }
 
     private void Movement()
@@ -65,8 +62,11 @@ public class MovingBall : MonoBehaviour
         if (nextPos.y + transform.localScale.y / 2 > _bounds.Top ||
             nextPos.y - transform.localScale.y / 2 < _bounds.Bottom)
             _dir.y *= -1;
-        
-        if(Vector3.Distance(nextPos, FormController.Instance.Intersect) <= transform.localScale.x /2)
+
+        _closestLineInfo = LineData.Instance.GetClosest(transform.position);
+
+        if (_closestLineInfo is not null &&
+            Vector3.Distance(transform.position, _closestLineInfo.Value.point) <= transform.localScale.x / 2)
             HandleLineCollision();
 
         transform.Translate(_dir * (speed * Time.deltaTime));
@@ -74,10 +74,62 @@ public class MovingBall : MonoBehaviour
 
     private void HandleLineCollision()
     {
-        // vector resolution
-        Vector2 normal = Vector3.Dot(_dir, _normal) * _normal;
-        Vector2 perp = Vector3.Dot(_dir, _alongPerp) * _alongPerp;
+        if (_closestLineInfo is null)
+            return;
 
-        _dir = (-normal + perp).normalized;
+        Vector2 normal = _closestLineInfo.Value.associativelineData.Normal;
+        Vector2 along = _closestLineInfo.Value.associativelineData.Along;
+
+
+        Vector2 refrNorm = Vector2.Dot(_dir, normal) * normal;
+        Vector2 refrAlong = Vector2.Dot(_dir, along) * along;
+
+        _dir = (-normal + refrAlong).normalized;
+    }
+
+    private void DrawIntersection()
+    {
+        if (_closestLineInfo is null)
+        {
+            intersectionPoint.SetActive(false);
+            return;
+        }
+
+        intersectionPoint.SetActive(true);
+        intersectionPoint.transform.position = _closestLineInfo.Value.point;
+    }
+
+    private void DrawVectors()
+    {
+        if (_closestLineInfo is null) return;
+
+        var normal = _closestLineInfo.Value.associativelineData.Normal;
+        print(normal);
+        var along = _closestLineInfo.Value.associativelineData.Along;
+
+        Vector3 normAngles = new Vector3(0, 0, Mathf.Atan2(normal.y, normal.x) * Mathf.Rad2Deg);
+        Vector3 alongAngles = new Vector3(0, 0, Mathf.Atan2(along.y, along.x) * Mathf.Rad2Deg);
+
+        normalArrow.transform.eulerAngles = normAngles;
+        AlongPerpArrow.transform.eulerAngles = alongAngles;
+    }
+
+    private void DrawPerpendicular()
+    {
+        if (_closestLineInfo is null)
+            return;
+        
+        PqrForm perp = _closestLineInfo.Value.associativelineData.LineInfo.Formula.Perpendicular(transform.position);
+        
+        if (perp.Q == 0)
+        {
+            float x = perp.GetX(0);
+            perpendicular.SetPosition(0, new Vector2(x, -20));
+            perpendicular.SetPosition(1, new Vector2(x, 20));
+            return;
+        }
+
+        perpendicular.SetPosition(0, new Vector2(-10, perp.GetY(-10)));
+        perpendicular.SetPosition(1, new Vector2(10, perp.GetY(10)));
     }
 }
