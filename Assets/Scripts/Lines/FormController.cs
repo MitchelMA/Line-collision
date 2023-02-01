@@ -22,5 +22,7 @@ public class FormController : MonoBehaviour
     private void Update()
     {
         _pointsFormula.WithPoints(pointA.position, pointB.position);
+        // explicitly set the formula again, since it's a value-type (struct)
+        _associativeLineData.LineInfo.Formula = _pointsFormula;
     }
 }

@@ -1,7 +1,4 @@
 ﻿using System;
-using Unity.Mathematics;
-using Unity.VisualScripting.FullSerializer;
-using UnityEditor;
 using UnityEngine;
 
 namespace Utils
@@ -9,7 +6,7 @@ namespace Utils
     /// <summary>
     /// Structure for the linear formula `px + qy = r`
     /// </summary>
-    public class PqrForm : IEquatable<PqrForm>
+    public struct PqrForm : IEquatable<PqrForm>
     {
         /// <summary>The p constant in the linear formula `px + qy = r`</summary>
         public float P;
@@ -102,29 +99,12 @@ namespace Utils
         /// </summary>
         public float Angle => Mathf.Atan2(Slope, 1);
 
-        public PqrForm()
-        {
-        }
-        
-        /// <summary>
-        /// Constructor to create a line from the components p, q and r respectively 
-        /// </summary>
-        /// <param name="p"></param>
-        /// <param name="q"></param>
-        /// <param name="r"></param>
-        public PqrForm(float p, float q, float r)
-        {
-            P = p;
-            Q = q;
-            R = r;
-        }
-
         /// <summary>
         /// Constructor to create a line between point a to point b
         /// </summary>
         /// <param name="point1">Point a</param>
         /// <param name="point2">Point b</param>
-        public PqrForm(Vector2 point1, Vector2 point2)
+        public PqrForm(Vector2 point1, Vector2 point2) : this()
         {
             WithPoints(point1, point2);
         }
@@ -134,7 +114,7 @@ namespace Utils
         /// </summary>
         /// <param name="a">The a variable in the `y = ax + b` formula</param>
         /// <param name="b">The b variable in the `y = ax + b` formula</param>
-        public PqrForm(float a, float b)
+        public PqrForm(float a, float b) : this()
         {
             WithAb(a, b);
         }
@@ -144,7 +124,7 @@ namespace Utils
         /// </summary>
         /// <param name="slope">The slope of the formula</param>
         /// <param name="point">The point that should be on the formula</param>
-        public PqrForm(float slope, Vector2 point)
+        public PqrForm(float slope, Vector2 point) : this()
         {
             WithSlopePoint(slope, point);
         }
@@ -224,7 +204,12 @@ namespace Utils
         /// </summary>
         /// <returns>A formula that intersects with a right-angle</returns>
         public PqrForm Perpendicular() =>
-            new PqrForm(Q, -P, R);
+            new()
+            {
+                P = Q,
+                Q = -P,
+                R = R,
+            };
 
         public PqrForm Perpendicular(Vector2 through)
         {

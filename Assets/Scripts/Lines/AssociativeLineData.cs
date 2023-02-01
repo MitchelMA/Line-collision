@@ -3,21 +3,8 @@ using Utils;
 
 public class AssociativeLineData
 {
-    private LineInfo _lineInfo;
 
-    public LineInfo LineInfo
-    {
-        set
-        {
-            _lineInfo = value;
-            Update();
-        }
-        get
-        {
-            Update();
-            return _lineInfo;
-        }
-    }
+    public LineInfo LineInfo { get; private set; }
 
     public Vector2 Normal => Vector2.Perpendicular(Along);
 
@@ -34,8 +21,8 @@ public class AssociativeLineData
             if (float.IsInfinity(LineInfo.Formula.Slope))
                 return Vector2.up;
 
-            Vector2 c = new Vector2(-1, _lineInfo.Formula.GetY(-1));
-            Vector2 d = new Vector2(1, _lineInfo.Formula.GetY(1));
+            Vector2 c = new Vector2(-1, LineInfo.Formula.GetY(-1));
+            Vector2 d = new Vector2(1, LineInfo.Formula.GetY(1));
             return (d - c).normalized;
         }
     }
@@ -54,12 +41,5 @@ public class AssociativeLineData
     {
         LineInfo = lineInfo;
         LineRenderer = lineRenderer;
-    }
-
-    private void Update()
-    {
-        if (!_lineInfo.IsSegment) return;
-
-        _lineInfo.Formula.WithPoints((Vector2) _lineInfo.LineBounds?.a, (Vector2) _lineInfo.LineBounds?.b);
     }
 }
