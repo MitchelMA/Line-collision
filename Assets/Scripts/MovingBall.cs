@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System;
 using UnityEngine;
 using Utils;
 
@@ -90,7 +88,8 @@ public class MovingBall : MonoBehaviour
         Vector3 dir = _tracker.UDir;
         _rotation = new Vector3(0, 0, Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg);
         arrow.transform.eulerAngles = _rotation;
-        arrow.BaseLength = _tracker.Speed / 3;
+        // logarithmically lengthen the arrow with base e such that a speed of 3 equals a length of 1
+        arrow.BaseLength = (float)Math.Log(_tracker.Speed * Math.E/3d);
 
         if (_closestLineInfo is null) return;
 
